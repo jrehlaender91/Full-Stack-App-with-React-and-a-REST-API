@@ -1,6 +1,9 @@
 import { useRef, useContext, useState } from 'react';
-import UserContext from '../context/UserContext.jsx';
 import { Link, useNavigate } from 'react-router-dom';
+import { api } from '../utils/apiHelper';
+
+import ErrorsDisplay from './ErrorsDisplay.jsx';
+import UserContext from '../context/UserContext.jsx';
 
 function UserSignUp() {
     const navigate = useNavigate();
@@ -24,16 +27,8 @@ function UserSignUp() {
             password: password.current.value
         }
 
-        const fetchOptions = {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json; charset=utf-8"
-            },
-            body: JSON.stringify(user)
-        }
-
         try {
-            const response = await fetch("http://localhost:5000/api/users", fetchOptions);
+            const response = await api("/users", "POST", user);
             if (response.status === 201) {
                 console.log(`${user.firstName} is successfully signed up and authenticated!`);
                 await actions.signIn(user);
@@ -60,17 +55,7 @@ function UserSignUp() {
             <div className="form--centered">
                 <h2>Sign Up</h2>
                 <div>
-                    {errors.length ? (
-                        <div className='validation--errors' >
-                            <h3>Validation errors</h3>
-                            <div>
-                                <ul className='validation-errors'>
-                                    {errors.map((error, i) => <li key={i}>{error}</li>)}
-                                </ul>
-                            </div>
-                        </div>
-                    ) : null}
-
+                    <ErrorsDisplay errors={errors} />
                     <form onSubmit={handleSubmit}>
                         <label htmlFor="firstName">First Name</label>
                         <input

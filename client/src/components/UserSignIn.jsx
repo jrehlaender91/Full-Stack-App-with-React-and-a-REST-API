@@ -1,6 +1,8 @@
 import { useRef, useContext, useState } from 'react';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
+import ErrorsDisplay from './ErrorsDisplay.jsx';
 import UserContext from '../context/UserContext.jsx';
-import { Link, useNavigate } from 'react-router-dom';
+
 
 const UserSignIn = () => {
     const { actions } = useContext(UserContext);
@@ -11,20 +13,24 @@ const UserSignIn = () => {
     const [errors, setErrors] = useState([]);
 
     const navigate = useNavigate();
+    const location = useLocation();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-
-        const credentials = {
-            email: email.current.value,
-            password: password.current.value
+        let from = "/";
+        if (location.state) {
+            from = location.state.from;
         }
 
+        const credentials = {
+            emailAddress: email.current.value,
+            password: password.current.value
+        }
 
         try {
             const user = await actions.signIn(credentials);
             if (user) {
-                navigate("/");
+                navigate(from);
             } else {
                 setErrors(["Sign In was unsuccessful"])
             }
@@ -43,16 +49,7 @@ const UserSignIn = () => {
         <main>
             <div className="form--centered">
                 <h2>Sign In</h2>
-                {errors.length ? (
-                    <div>
-                        <div className="validation-errors mb-3">
-                            <h2 className="validation--errors--label">Validation errors</h2>
-                            <ul className='validation-errors'>
-                                {errors.map((error, i) => <li key={i}>{error}</li>)}
-                            </ul>
-                        </div>
-                    </div>
-                ) : null}
+                <ErrorsDisplay errors={errors} />
                 <form onSubmit={handleSubmit}>
                     <label htmlFor="emailAddress">Email Address</label>
                     <input id="emailAddress" name="emailAddress" type="email" ref={email} />

@@ -1,25 +1,20 @@
 import { createContext, useState } from 'react';
+import Cookies from "js-cookie";
+import { api } from '../utils/apiHelper';
 
 // Create context
 const UserContext = createContext(null);
 
 export const UserProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
+  const cookie = Cookies.get("authenticatedUser");
+  const [user, setUser] = useState(cookie ? JSON.parse(cookie) : null);
 
   const signIn = async (credentials) => {
-    const encodedCredentials = btoa(`${credentials.email}:${credentials.password}`);
-
-    const fetchOptions = {
-      method: "GET",
-      headers: {
-        Authorization: `Basic ${encodedCredentials}`
-      }
-    };
-
-    const response = await fetch("http://localhost:5000/api/users", fetchOptions);
+    const response = await api("/users", "GET", null, credentials);
     if (response.status === 200) {
       const user = await response.json();
       setUser(user);
+      Cookies.set("authenticatedUser", JSON.stringify(user), { expires: 1 });
       return user;
     } else if (response.status === 401) {
       return null;
@@ -30,6 +25,7 @@ export const UserProvider = ({ children }) => {
 
   const signOut = () => {
     setUser(null);
+    Cookies.remove("authenticatedUser");
   }
 
   return (

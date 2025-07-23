@@ -5,11 +5,9 @@ import ReactMarkdown from 'react-markdown';
 const CourseDetail = () => {
     const { id } = useParams();
     const [course, setCourse] = useState(null);
-    const [loading, setLoading] = useState(true);  // para manejar el estado de carga
     const [error, setError] = useState(null);      // para manejar errores
 
     useEffect(() => {
-        setLoading(true);
         fetch(`http://localhost:5000/api/courses/${id}`)
             .then(res => {
                 if (!res.ok) {
@@ -19,18 +17,12 @@ const CourseDetail = () => {
             })
             .then(data => {
                 setCourse(data[0]);
-                setLoading(false);
             })
             .catch(err => {
                 console.error('Error cargando curso:', err);
                 setError(err.message);
-                setLoading(false);
             });
     }, [id]);
-
-    if (loading) {
-        return <p>Cargando curso...</p>;
-    }
 
     if (error) {
         return <p>{error}</p>; 
@@ -43,7 +35,7 @@ const CourseDetail = () => {
         <main>
             <div className="actions--bar">
                 <div className="wrap">
-                    <Link className="button" to={`/courses/${course.id}/update`}>Update Course</Link>
+                    <Link className="button" to={`/courses/${id}/update`}>Update Course</Link>
                     <Link className="button" to="/">Delete Course</Link>
                     <Link className="button button-secondary" to="/">Return to List</Link>
                 </div>
@@ -58,7 +50,7 @@ const CourseDetail = () => {
                             <h4 className="course--name">{course.title}</h4>
                             <p>By Joe Smith</p>
 
-                            <p>{course.description}</p>
+                            <ReactMarkdown>{course.description}</ReactMarkdown>
                         </div>
                         <div>
                             <h3 className="course--detail--title">Estimated Time</h3>

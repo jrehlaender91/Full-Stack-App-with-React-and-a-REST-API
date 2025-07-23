@@ -4,7 +4,6 @@ import UserContext from '../context/UserContext.jsx';
 
 function Header() {
     const { user } = useContext(UserContext);
-    console.log(user);
 
     return (
         <UserContext.Consumer>
@@ -13,13 +12,12 @@ function Header() {
                     <header>
                         <div className="wrap header--flex">
                             <h1 className="header--logo"><Link to="/">Courses</Link></h1>
-                            
+
                             <nav>
                                 {
                                     user ? (
                                         <ul className="header--signedout">
                                             <li>Welcome, {user.firstName} {user.lastName}!</li>
-                                            <li><Link to="signup">Settings</Link></li>
                                             <li><Link to="signout">Sign Out</Link></li>
                                         </ul>
                                     ) : (
@@ -34,7 +32,6 @@ function Header() {
                     </header>
                 )
             }}
-
         </UserContext.Consumer>
     )
 }
