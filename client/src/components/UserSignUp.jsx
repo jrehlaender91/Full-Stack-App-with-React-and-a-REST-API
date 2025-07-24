@@ -1,4 +1,4 @@
-import { useRef, useContext, useState } from 'react';
+import React, { useRef, useContext, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { api } from '../utils/apiHelper';
 
@@ -6,17 +6,16 @@ import ErrorsDisplay from './ErrorsDisplay.jsx';
 import UserContext from '../context/UserContext.jsx';
 
 function UserSignUp() {
+    //Set the intial variables and states
     const navigate = useNavigate();
     const { actions } = useContext(UserContext);
 
-    // State
     const firstName = useRef(null);
     const lastName = useRef(null);
     const emailAddress = useRef(null);
     const password = useRef(null);
     const [errors, setErrors] = useState([]);
 
-    // event handlers
     const handleSubmit = async (event) => {
         event.preventDefault();
 
@@ -28,9 +27,9 @@ function UserSignUp() {
         }
 
         try {
+            // Posts new user data to the api
             const response = await api("/users", "POST", user);
             if (response.status === 201) {
-                console.log(`${user.firstName} is successfully signed up and authenticated!`);
                 await actions.signIn(user);
                 navigate("/");
             } else if (response.status === 400) {

@@ -1,13 +1,13 @@
-import { useRef, useContext, useState } from 'react';
+import React, { useRef, useContext, useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import ErrorsDisplay from './ErrorsDisplay.jsx';
 import UserContext from '../context/UserContext.jsx';
 
 
 const UserSignIn = () => {
+    //Set the intial variables and states
     const { actions } = useContext(UserContext);
 
-    // State
     const email = useRef(null);
     const password = useRef(null);
     const [errors, setErrors] = useState([]);
@@ -28,6 +28,7 @@ const UserSignIn = () => {
         }
 
         try {
+            // Tries to sign in sending the credentials to the signIn function
             const user = await actions.signIn(credentials);
             if (user) {
                 navigate(from);
@@ -57,7 +58,7 @@ const UserSignIn = () => {
                     <input id="password" name="password" type="password" ref={password} />
                     <button className="button" type="submit">Sign In</button><button className="button button-secondary" onClick={handleCancel}>Cancel</button>
                 </form>
-                <p>Don't have a user account? Click here to <Link to="/signup">sign up</Link>!</p>
+                <p>Don&apos;t have a user account? Click here to <Link to="/signup">sign up</Link>!</p>
 
             </div>
         </main>

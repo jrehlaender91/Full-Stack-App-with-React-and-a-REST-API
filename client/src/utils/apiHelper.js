@@ -22,4 +22,4 @@ export const api = (
   }
 
   return fetch(url, options);
-}
+} 

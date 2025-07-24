@@ -1,12 +1,22 @@
 import { useParams, Link } from 'react-router-dom';
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { api } from '../utils/apiHelper';
 import ReactMarkdown from 'react-markdown';
 
+import UserContext from '../context/UserContext.jsx';
+
+
 const CourseDetail = () => {
+    //Set the intial variables and states
     const { id } = useParams();
     const [course, setCourse] = useState(null);
-    const [error, setError] = useState(null);      // para manejar errores
+    const [error, setError] = useState(null);
 
+    const navigate = useNavigate();
+    const { user } = useContext(UserContext);
+
+    // Searchs for the course and pulls its data
     useEffect(() => {
         fetch(`http://localhost:5000/api/courses/${id}`)
             .then(res => {
@@ -24,20 +34,69 @@ const CourseDetail = () => {
             });
     }, [id]);
 
+
+
     if (error) {
-        return <p>{error}</p>; 
+        return <p>{error}</p>;
     }
 
     if (!course) {
         return <p>Curso no encontrado.</p>;
     }
+
+    let owner = user && user.id === course.userId;
+
+    // Delete course function, only works if the user is the owner
+    const handleDelete = async (event) => {
+        event.preventDefault();
+
+        try {
+            if (!user) {
+                navigate('/signin');
+                return null;
+            } else {
+                const response = await api(`/courses/${id}`, 'DELETE', course, {
+                    emailAddress: user.emailAddress,
+                    password: user.password,
+                });
+                if (response.status === 204) {
+                    navigate('/');
+                } else if (response.status === 400) {
+                    const data = await response.json();
+                    setError(Array.isArray(data.error) ? data.error : []);
+                    navigate('/notfound');
+                } else if (response.status === 401) {
+                    const data = await response.json();
+                    setError(Array.isArray(data.error) ? data.error : []); 
+                    navigate('/forbidden');
+                } else {
+                    throw new Error();
+                }
+            }
+        } catch (error) {
+            console.log(error);
+            navigate("/error");
+        }
+    }
+
     return (
         <main>
             <div className="actions--bar">
                 <div className="wrap">
-                    <Link className="button" to={`/courses/${id}/update`}>Update Course</Link>
-                    <Link className="button" to="/">Delete Course</Link>
-                    <Link className="button button-secondary" to="/">Return to List</Link>
+                    {/* Ternary operation that checks if the owner is the authenticated user so it conditionally reveals buttons */}
+                    {
+                        owner ? (
+                            <>
+                                <Link className="button" to={`/courses/${id}/update`}>Update Course</Link>
+                                <Link className="button" onClick={handleDelete}>Delete Course</Link>
+                                <Link className="button button-secondary" to="/">Return to List</Link>
+                            </>
+                        ) : (
+                            <>
+                                <Link className="button button-secondary" to="/">Return to List</Link>
+                            </>
+                        )}
+
                 </div>
             </div>
 
@@ -48,7 +107,7 @@ const CourseDetail = () => {
                         <div>
                             <h3 className="course--detail--title">Course</h3>
                             <h4 className="course--name">{course.title}</h4>
-                            <p>By Joe Smith</p>
+                            <p>By {course.user?.firstName} {course.user?.lastName}</p>
 
                             <ReactMarkdown>{course.description}</ReactMarkdown>
                         </div>

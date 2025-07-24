@@ -1,14 +1,11 @@
 import { Link } from 'react-router-dom';
-import { useContext } from 'react';
+import React, { useContext } from 'react';
 import UserContext from '../context/UserContext.jsx';
 
 function Header() {
     const { user } = useContext(UserContext);
 
     return (
-        <UserContext.Consumer>
-            {context => {
-                return (
                     <header>
                         <div className="wrap header--flex">
                             <h1 className="header--logo"><Link to="/">Courses</Link></h1>
@@ -30,9 +27,6 @@ function Header() {
                             </nav>
                         </div>
                     </header>
-                )
-            }}
-        </UserContext.Consumer>
     )
 }
 

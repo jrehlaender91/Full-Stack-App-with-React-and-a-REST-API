@@ -1,4 +1,4 @@
-import { useRef, useContext, useState } from 'react';
+import React, { useRef, useContext, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { api } from '../utils/apiHelper';
 
@@ -6,6 +6,7 @@ import ErrorsDisplay from './ErrorsDisplay.jsx';
 import UserContext from '../context/UserContext.jsx';
 
 function CreateCourse() {
+    //Set the intial variables and states
     const navigate = useNavigate();
     const { user } = useContext(UserContext);
 
@@ -19,30 +20,33 @@ function CreateCourse() {
         event.preventDefault();
 
         const course = {
+            // Gets the current information from the form
             title: courseTitle.current.value,
             description: courseDescription.current.value,
             estimatedTime: estimatedTime.current.value,
             materialsNeeded: materialsNeeded.current.value,
-        }
+            userId: user.id
 
-        let credentials = {
-            emailAddress: user.emailAddress,
-            password: user.password
         }
 
         try {
+            // Private route: if user its not authenticated, goes to Sign In page
             if (!user) {
                 navigate('/signin');
+                return null;
             } else {
-                const response = await api('/courses', 'POST', course, credentials);
+                // Sends instructions and credentials to the api
+                const response = await api('/courses', 'POST', course, {
+                    emailAddress: user.emailAddress,
+                    password: user.password,
+                });
                 if (response.status === 201) {
-                    console.log(`${course.title} was successfully created`);
-                } else if (response.status === 400) {
-                    const data = await response.json();
-                    setErrors(data.errors);
-                } else if (response.status === 401) {
-                    const data = await response.json();
-                    setErrors(data.errors);
+                    const location = response.headers.get('Location');
+                    const courseId = location ? location.split('/').pop() : null;
+                    navigate(courseId ? `/courses/${courseId}` : '/');
+                } else if (response.status === 400 || response.status === 401) {
+                    const data = await response.json(); // AQUÍ sí es un Response válido
+                    setErrors(Array.isArray(data.errors) ? data.errors : []);
                 } else {
                     throw new Error();
                 }
@@ -53,6 +57,7 @@ function CreateCourse() {
         }
     }
 
+    // Sends user to home
     const handleCancel = (event) => {
         event.preventDefault();
         navigate("/");
@@ -63,15 +68,7 @@ function CreateCourse() {
             <div className="wrap">
                 <h2>Create Course</h2>
 
-                {errors.length ? (
-                    <div className="validation--errors">
-                        <h3 className="validation--errors">Validation errors</h3>
-                        <ul className="validation--errors">
-                            {errors.map((error, i) => <li className="validation--errors" key={i}>{error}</li>)}
-                        </ul>
-                    </div>
-
-                ) : (null)}
+                <ErrorsDisplay errors={errors} />
                 <form onSubmit={handleSubmit}>
                     <div className="main--flex">
                         <div>
