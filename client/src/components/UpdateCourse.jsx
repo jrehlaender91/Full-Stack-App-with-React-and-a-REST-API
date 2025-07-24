@@ -75,7 +75,6 @@ const UpdateCourse = () => {
             } else if (response.status === 400) {
                 const data = await response.json();
                 setErrors(Array.isArray(data.errors) ? data.errors : []);
-                navigate('/notfound');
             } else if (response.status === 401) {
                 navigate('/forbidden');
             } else {
