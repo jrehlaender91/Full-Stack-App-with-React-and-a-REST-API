@@ -22,7 +22,7 @@ const UpdateCourse = () => {
     useEffect(() => {
         const fetchCourse = async () => {
             try {
-                const res = await fetch(`http://localhost:5000/api/courses/${id}`);
+                const res = await fetch(`https://full-stack-app-with-react-and-a-rest-api-production.up.railway.app/api/courses/${id}`);
                 if (res.status === 200) {
                     const data = await res.json();
 

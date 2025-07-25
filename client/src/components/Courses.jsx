@@ -5,7 +5,7 @@ const Courses = () => {
     const [courses, setCourses] = useState([]);
 
     useEffect(() => {
-        fetch('http://localhost:5000/api/courses')
+        fetch('https://full-stack-app-with-react-and-a-rest-api-production.up.railway.app/api/courses')
             .then(res => res.json())
             .then(data => setCourses(data))
             .catch(err => console.error('Error al cargar cursos:', err));
